@@ -35,25 +35,20 @@
   const UART_SERVICE = '6e400001-b5a3-f393-e0a9-e50e24dcca9e';
   const UART_TX_CHAR = '6e400002-b5a3-f393-e0a9-e50e24dcca9e';
   let txCharacteristic = null;
-  let gattServer = null;
   let currentDevice = null;
 
   async function connect() {
     try {
-      document.getElementById('status').textContent = '🔄 Suche Calliope...';
+      document.getElementById('status').textContent = '🔄 Suche Calliope V2...';
       const device = await navigator.bluetooth.requestDevice({
         filters: [{ namePrefix: 'Calliope' }],
         optionalServices: [UART_SERVICE]
       });
       currentDevice = device;
-
       device.addEventListener('gattserverdisconnected', onDisconnected);
-
       const server  = await device.gatt.connect();
-      gattServer = server;
       const service = await server.getPrimaryService(UART_SERVICE);
       txCharacteristic = await service.getCharacteristic(UART_TX_CHAR);
-
       document.getElementById('status').textContent = '✅ Verbunden mit: ' + device.name;
       document.getElementById('startBtn').disabled      = false;
       document.getElementById('stopBtn').disabled       = false;
@@ -72,7 +67,6 @@
 
   function onDisconnected() {
     txCharacteristic = null;
-    gattServer = null;
     document.getElementById('status').textContent = '🔌 Getrennt';
     document.getElementById('startBtn').disabled      = true;
     document.getElementById('stopBtn').disabled       = true;
